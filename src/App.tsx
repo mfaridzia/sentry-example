@@ -6,6 +6,7 @@ import './App.css'
 function App() {
   const [count, setCount] = useState(0)
   const [value, setValue] = useState(1)
+  const [data, setData] = useState([])
 
   useEffect(() => {
     const getTodos = async () => {
@@ -15,12 +16,13 @@ function App() {
 
         if (!resp.ok) {
           // custom error
-          Sentry.captureMessage('404 Not Found', 'error')
+          //Sentry.captureMessage('404 Not Found', 'error')
           
-          //throw new Error(resp.status + ' Failed Fetch 404 status');
+          throw new Error(resp.status + ' Failed Fetch 404 status')
         } else {
           // got the desired response
           console.log(todos)
+          setData(todos.data.items) // error, cannot read properties of undefined (reading 'items')
         }
       } catch (e) {
         Sentry.captureException(e)
@@ -29,6 +31,14 @@ function App() {
 
     getTodos()
   }, [])
+
+  useEffect(() => {
+    if (count === 3) Sentry.captureException(`${count} === 3`)
+  }, [count])
+
+  const handleClickText = () => {
+    setCount(count + 1)
+  }
 
   return (
     <div className="App">
@@ -55,8 +65,11 @@ function App() {
 
       <br/><br/>
 
-      <button onClick={() => methodDoesNotExist()}>Break the world</button>
-      <button onClick={() => setValue(count.value++)} className='error'>Increment</button>
+      {/* <button onClick={methodDoesnotExist}>Break the world</button> */}
+      <button onClick={() => console.log}>Break the world</button>
+      <button onClick={() => setValue(count)} className='error'>Increment</button>
+
+      <p onClick={handleClickText }>Click Text</p>
     </div>
   )
 }
